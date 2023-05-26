@@ -1,12 +1,17 @@
 # github-copilot-cli.fish
+
 Make GitHub Copilot CLI's alias work for Fish shell. The current Copilot CLI in beta only supports bash-like syntax.
+
+Improvements over [z11i/github-copilot-cli.fish](https://github.com/z11i/github-copilot-cli.fish):
+
+- Save commands to history
 
 ## How to install
 
 ### Via fisher
 
 ```
-fisher install z11i/github-copilot-cli.fish
+fisher install davidjbng/github-copilot-cli.fish
 ```
 
 ### Manually

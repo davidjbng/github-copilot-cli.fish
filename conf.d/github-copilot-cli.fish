@@ -10,12 +10,36 @@ function __fish_add_history
     and history merge
 end
 
+function __get_last_history_item
+    echo (history --max=1 | string trim)
+end
+
+function __remove_last_history_item
+    set LAST_CMD (__get_last_history_item)
+    set LAST_CMD_ESCAPED (string escape --style=regex -- $LAST_CMD)
+    awk -v cmd="^- cmd: $LAST_CMD_ESCAPED" -v when="^ when: [0-9]+\$" '  
+    {  
+        if ($0 ~ cmd) {  
+            getline  
+            if ($0 ~ when) {  
+                getline  
+            }  
+        } else {  
+            print  
+        }  
+    }  
+    ' $__fish_user_data_dir/fish_history >$__fish_user_data_dir/fish_history.tmp
+    mv $__fish_user_data_dir/fish_history.tmp $__fish_user_data_dir/fish_history
+    history merge
+end
+
 function __copilot_what-the-shell
     set TMPFILE (mktemp)
     trap 'rm -f $TMPFILE' EXIT
     if github-copilot-cli what-the-shell $argv --shellout $TMPFILE
         if test -e $TMPFILE
             set FIXED_CMD (cat $TMPFILE)
+            __remove_last_history_item
             __fish_add_history $FIXED_CMD
             eval $FIXED_CMD
         else
@@ -33,6 +57,7 @@ function __copilot_git-assist
     if github-copilot-cli git-assist $argv --shellout $TMPFILE
         if test -e $TMPFILE
             set FIXED_CMD (cat $TMPFILE)
+            __remove_last_history_item
             __fish_add_history $FIXED_CMD
             eval $FIXED_CMD
         else
@@ -50,6 +75,7 @@ function __copilot_gh-assist
     if github-copilot-cli gh-assist $argv --shellout $TMPFILE
         if test -e $TMPFILE
             set FIXED_CMD (cat $TMPFILE)
+            __remove_last_history_item
             __fish_add_history $FIXED_CMD
             eval $FIXED_CMD
         else
